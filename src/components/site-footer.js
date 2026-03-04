@@ -23,10 +23,10 @@ class SiteFooter extends HTMLElement {
   }
   constructor() {
     super();
-    this.renderNavBar();
+    this.renderFooter();
     this.renderAuthControls();
   }
-  renderNavBar() {
+  renderFooter() {
     this.innerHTML = `
             <!-- Footer: single source of truth -->
             <footer class="py-3 my-4 border-top text-center">

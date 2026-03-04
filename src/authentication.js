@@ -18,6 +18,9 @@ import {
   signOut,
 } from "firebase/auth";
 
+import { db } from "/src/firebaseConfig.js";
+import { doc, setDoc } from "firebase/firestore";
+
 // -------------------------------------------------------------
 // loginUser(email, password)
 // -------------------------------------------------------------
@@ -35,25 +38,28 @@ export async function loginUser(email, password) {
   return signInWithEmailAndPassword(auth, email, password);
 }
 
-// -------------------------------------------------------------
-// signupUser(name, email, password)
-// -------------------------------------------------------------
-// Creates a new user account with Firebase Authentication,
-// then updates the user's profile with a display name.
-//
-// Parameters:
-//   name (string)     - user's display name
-//   email (string)    - user's email
-//   password (string) - user's password
-//
-// Returns: the created user object.
-// Usage:
-//   const user = await signupUser("Alice", "alice@email.com", "secret");
-// -------------------------------------------------------------
 export async function signupUser(name, email, password) {
-  const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-  await updateProfile(userCredential.user, { displayName: name });
-  return userCredential.user;
+  const userCredential = await createUserWithEmailAndPassword(
+    auth,
+    email,
+    password,
+  );
+  const user = userCredential.user;
+  await updateProfile(user, { displayName: name });
+  try {
+    await setDoc(doc(db, "users", user.uid), {
+      name: name,
+      email: email,
+      country: "Canada",
+      school: "BCIT",
+    });
+    console.log("Firestore user document created successfully!");
+  } catch (error) {
+    alert(
+      `Error creating user document:\n${error.code || ""}\n${error.message || error}`,
+    );
+  }
+  return user;
 }
 
 // -------------------------------------------------------------
@@ -130,4 +136,3 @@ export function authErrorMessage(error) {
 
   return map[code] || "Something went wrong. Please try again.";
 }
-
